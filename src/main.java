@@ -9,7 +9,7 @@ public class main {
 	
 	public static void main(String[] args)
 	{
-		Window.createWindow(640,  480, "Infect Nintendo Characters");
+		Window.createWindow(800, 600, "Infect");
 		
     	/*Initialize Keyboard*/
     	Keyboard.initializeKb();

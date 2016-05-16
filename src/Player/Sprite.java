@@ -100,7 +100,7 @@ public class Sprite {
 
 	public void updateRelativePosition()
 	{
-		rPos[0] = Pos[0]
+		rPos[0] = Pos[0];
 	}
 	/*Getters and setters*/
 	public int[] getPos() {
