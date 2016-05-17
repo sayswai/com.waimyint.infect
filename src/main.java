@@ -1,6 +1,9 @@
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.KeyEvent;
 
+import Text.Text;
+import UI.*;
 import Controllers.*;
 
 public class main {
@@ -16,6 +19,9 @@ public class main {
     	
     	/*Initialize Objects*/
     	/*initialize Texts*/
+    	/*Initialize UI*/
+    	Footer footerUI = new Footer("uiBg.tga");
+    	ArrowKeys arrows = new ArrowKeys();
     	/*Load Textures*/
     	/*Physics Implementation*/
     	int physicsDeltaMS = 10;
@@ -31,6 +37,7 @@ public class main {
     	
     		Window.window.display();
     		
+    		
     		/*Pressing ESC will exit the game or closing the window*/
     		if(Keyboard.getKbState()[KeyEvent.VK_ESCAPE]){
     			shouldExit = true;
@@ -41,17 +48,23 @@ public class main {
     			break;
     		}
     		
+    		arrows.update();
     		int curFrameMS = 100;
-    		/*Physics Update*/
+    		/*Physics Update
     		do{
     			
     		}while(lastPhysicsFrameMS + physicsDeltaMS < curFrameMS);
-    		lastPhysicsFrameMS = 0;
+    		lastPhysicsFrameMS = 0;*/
     		
     		/*Clear Last Frame*/
     		Window.clearWindow();
     		
     		/*Draw*/
+    		footerUI.draw();
+    		arrows.draw();
+
+    		arrows.updateLetters();
     	}
+    	System.exit(0);
 	}
 }

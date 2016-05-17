@@ -36,7 +36,8 @@ public static void createWindow(int width, int height, String title)
     gl = window.getGL().getGL2();
     gl.glViewport(0, 0, width, height);
     gl.glMatrixMode(GL2.GL_PROJECTION);
-    gl.glOrtho(0, 640, 480, 0, 0, 100);
+   // gl.glOrtho(0, 640, 480, 0, 0, 100);
+    gl.glOrtho(0, 800, 600, 0, 0, 100);
     gl.glEnable(GL2.GL_TEXTURE_2D);
     gl.glEnable(GL2.GL_BLEND);
     gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);

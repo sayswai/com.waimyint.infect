@@ -43,6 +43,7 @@ public static int glTexImageTGAFile(String filename, int[] out_size) {
     	 */
 
         file = new DataInputStream(new FileInputStream(filename));
+
     } catch (FileNotFoundException ex) {
         System.err.println("File: "+filename+" -- Could not open for reading.");
         return 0;
