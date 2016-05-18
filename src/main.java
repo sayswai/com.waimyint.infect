@@ -49,7 +49,6 @@ public class main {
     		}
     		
     		arrows.update();
-    		int curFrameMS = 100;
     		/*Physics Update
     		do{
     			
@@ -63,6 +62,7 @@ public class main {
     		footerUI.draw();
     		arrows.draw();
 
+    		/*Update Arrows*/
     		arrows.updateLetters();
     	}
     	System.exit(0);

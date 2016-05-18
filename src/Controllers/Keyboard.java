@@ -25,8 +25,7 @@ public class Keyboard {
                }
             	kbState[keyEvent.getKeyCode()] = true;
             	pressed.add(String.valueOf(keyEvent.getKeyChar()));
-            	System.out.println("Adding "+String.valueOf(keyEvent.getKeyChar()));
-            }
+             }
 
             public void keyReleased(KeyEvent keyEvent) {
                 if(keyEvent.isAutoRepeat()){
@@ -34,8 +33,7 @@ public class Keyboard {
                 }
             	kbState[keyEvent.getKeyCode()] = false;
             	pressed.remove(String.valueOf(keyEvent.getKeyChar()));
-            	System.out.println("Removing "+String.valueOf(keyEvent.getKeyChar()));
-            }
+            	 }
             
         });
 	}

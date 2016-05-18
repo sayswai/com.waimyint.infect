@@ -14,7 +14,7 @@ import Controllers.TGAController;
 public class ArrowKeys {
 
 	class Button{
-		int arrow, pressed;
+		int arrow, pressed, xpos, ypos;
 		int[] dim = new int[2];
 		boolean down = false;
 		
@@ -24,18 +24,18 @@ public class ArrowKeys {
 			this.pressed = TGAController.glTexImageTGAFile(pressed, dim);
 		}
 		
-		public void draw(int x, int y)
+		public void draw()
 		{
 			if(down){
-				TGAController.glDrawSprite(pressed, x, y, dim[0], dim[1]);
+				TGAController.glDrawSprite(pressed, xpos, ypos, dim[0], dim[1]);
 			}else{
-				TGAController.glDrawSprite(arrow, x, y, dim[0], dim[1]);
+				TGAController.glDrawSprite(arrow, xpos, ypos, dim[0], dim[1]);
 			}
 		}
 	}
 	
+	boolean wasd = false;
 	Button up, down, right, left;
-	ArrayList<String> keys;
 	char[] keys0 = new char[4];
 	Text upT, downT, rightT, leftT;
 	
@@ -44,11 +44,12 @@ public class ArrowKeys {
 	
 	public ArrowKeys()
 	{
-		up = new Button("uArrow.tga", "uPressed.tga");
-		down = new Button("dArrow.tga", "dPressed.tga");
-		left = new Button("lArrow.tga", "lPressed.tga");
-		right = new Button("rArrow.tga", "rPressed.tga");
-		keys = new ArrayList<String>(); int count = 0;
+		int x = 25;
+		up = new Button("uArrow.tga", "uPressed.tga"); up.xpos = x; x+=125;up.ypos=455;
+		down = new Button("dArrow.tga", "dPressed.tga");down.xpos = x; x+=125;down.ypos=455;
+		right = new Button("rArrow.tga", "rPressed.tga");right.xpos = x; x+=125;right.ypos=455;
+		left = new Button("lArrow.tga", "lPressed.tga");left.xpos = x; left.ypos=455;
+		int count = 0;
 		
 		while(count < 4)
 		{
@@ -60,11 +61,11 @@ public class ArrowKeys {
 			}
 		}
 		
-		int x = 70;
-		upT = new Text(String.valueOf(keys0[0]).toUpperCase());  upT.setY(40); upT.setX(x); x+=125;
-		downT = new Text(String.valueOf(keys0[1]).toUpperCase()); downT.setY(40); downT.setX(x); x+=125;
-		rightT = new Text(String.valueOf(keys0[2]).toUpperCase()); rightT.setY(40); rightT.setX(x); x+=125;
-		leftT = new Text(String.valueOf(keys0[3]).toUpperCase()); leftT.setY(40); leftT.setX(x);
+		x = 70;
+		upT = new Text(String.valueOf(keys0[0]).toUpperCase());  upT.setY(170); upT.setX(x); x+=125;
+		downT = new Text(String.valueOf(keys0[1]).toUpperCase()); downT.setY(170); downT.setX(x); x+=125;
+		rightT = new Text(String.valueOf(keys0[2]).toUpperCase()); rightT.setY(170); rightT.setX(x); x+=125;
+		leftT = new Text(String.valueOf(keys0[3]).toUpperCase()); leftT.setY(170); leftT.setX(x);
 		left.down = false;
 		right.down = false;
 		up.down = false;
@@ -74,80 +75,152 @@ public class ArrowKeys {
 	public void update()
 	{
 		
-
-/*
-		if (Keyboard.getKbState()[KeyEvent.VK_W]) {//up
-    	  up.down = true;
-       }
-       if (Keyboard.getKbState()[KeyEvent.VK_S]) {//down
-          down.down = true;
-       }
-       if (Keyboard.getKbState()[KeyEvent.VK_D]) {//right
-    	   right.down = true;
-       }
-       if (Keyboard.getKbState()[KeyEvent.VK_A]){//left
-			left.down = true;
-       }
-       */
-		if(Keyboard.pressed.contains(String.valueOf(keys0[0])))
+		if(Keyboard.getKbState()[KeyEvent.VK_1])
 		{
-			up.down = true;
+			if(Keyboard.getKbState()[KeyEvent.VK_3])
+			{
+				if(Keyboard.getKbState()[KeyEvent.VK_4])
+				{
+					if(!wasd){
+						wasd = true;
+						updateKeys(0);
+					}else{
+						wasd = false;
+						updateKeys(0);
+						updateKeys(1);
+						updateKeys(2);
+						updateKeys(3);
+					}
+				}
+			}
 		}
-		if(Keyboard.pressed.contains(String.valueOf(keys0[1])))
+		
+		if(wasd)
 		{
-			down.down = true;
-			updateKeys(1);
+		   if (Keyboard.getKbState()[KeyEvent.VK_W]) {//up
+	    	  up.down = true;
+	       }
+	       if (Keyboard.getKbState()[KeyEvent.VK_S]) {//down
+	          down.down = true;
+	       }
+	       if (Keyboard.getKbState()[KeyEvent.VK_D]) {//right
+	    	   right.down = true;
+	       }
+	       if (Keyboard.getKbState()[KeyEvent.VK_A]){//left
+				left.down = true;
+	       }
+		}else{
+			if(Keyboard.pressed.contains(String.valueOf(keys0[0])))//up
+			{
+				up.down = true;
+			}
+			if(Keyboard.pressed.contains(String.valueOf(keys0[1])))//down
+			{
+				down.down = true;
+			}
+			if(Keyboard.pressed.contains(String.valueOf(keys0[2])))//right
+			{
+				right.down = true;
+			}
+			if(Keyboard.pressed.contains(String.valueOf(keys0[3])))//left
+			{
+				left.down = true;
+			}
+	
 		}
-		if(Keyboard.pressed.contains(String.valueOf(keys0[2])))
-		{
-			right.down = true;
-			updateKeys(2);
-		}
-		if(Keyboard.pressed.contains(String.valueOf(keys0[3])))
-		{
-			left.down = true;
-			updateKeys(3);
-		}
-
-		updateLetters();
 	}
 
 	public void updateLetters() {
-		if(up.down)
+		
+		if(!wasd)
 		{
-			if(!Keyboard.pressed.contains(String.valueOf(keys0[0])))
+			if(up.down)
 			{
-				updateKeys(0);
-				up.down = false;
+				if(!Keyboard.pressed.contains(String.valueOf(keys0[0])))
+				{
+					updateKeys(0);
+					up.down = false;
+				}
+			}else if(down.down)
+			{
+				if(!Keyboard.pressed.contains(String.valueOf(keys0[1])))
+				{
+					updateKeys(1);
+					down.down = false;
+				}
+			}else if(right.down)
+			{
+				if(!Keyboard.pressed.contains(String.valueOf(keys0[2])))
+				{
+					updateKeys(2);
+					right.down = false;
+				}
+			}else if(left.down){
+				if(!Keyboard.pressed.contains(String.valueOf(keys0[3])))
+				{
+					updateKeys(3);
+					left.down = false;
+				}
 			}
-		}else if(down.down)
-		{
-			updateKeys(1);
-		}else if(right.down)
-		{
-			updateKeys(2);
-		}else if(left.down){
-			updateKeys(3);
+		}else{
+			if(up.down)
+			{
+				if (!Keyboard.getKbState()[KeyEvent.VK_W])
+				{
+					up.down = false;
+				}
+			}
+			if(down.down)
+			{
+				if (!Keyboard.getKbState()[KeyEvent.VK_S])
+				{
+					down.down = false;
+				}
+			}
+			if(right.down)
+			{
+				if (!Keyboard.getKbState()[KeyEvent.VK_D])
+				{
+					right.down = false;
+				}
+			}
+			if(left.down)
+			{
+				if (!Keyboard.getKbState()[KeyEvent.VK_A])
+				{
+					left.down = false;
+				}
+			}
+			
 		}
+			
 	}
 
 	public void updateKeys(int key)
 	{
-		
-		do{
-		c = (char)(r.nextInt(26) + 'a');
-		}while(contains(c));
-		keys0[key] = c;
-		switch(key)
+		if(!wasd)
 		{
-		case 0: upT.setText(String.valueOf(keys0[key]).toUpperCase());
-				break;	
-		case 1: downT.setText(String.valueOf(keys0[key]).toUpperCase());
-				break;
-		case 2: rightT.setText(String.valueOf(keys0[key]).toUpperCase());	
-				break;
-		case 3: leftT.setText(String.valueOf(keys0[key]).toUpperCase());
+			do{
+			c = (char)(r.nextInt(26) + 'a');
+			}while(contains(c));
+			keys0[key] = c;
+			switch(key)
+			{
+			case 0: upT.setText(String.valueOf(keys0[key]).toUpperCase());
+					break;	
+			case 1: downT.setText(String.valueOf(keys0[key]).toUpperCase());
+					break;
+			case 2: rightT.setText(String.valueOf(keys0[key]).toUpperCase());	
+					break;
+			case 3: leftT.setText(String.valueOf(keys0[key]).toUpperCase());
+			}
+		}else{
+			upT.setText("W");
+			downT.setText("S");
+			rightT.setText("D");
+			leftT.setText("A");
 		}
+		
 		
 	}
 	
@@ -164,11 +237,10 @@ public class ArrowKeys {
 	}
 	
 	public void draw() {
-		int x = 25;
-		up.draw(x, 425);  x+=125; 
-		down.draw(x, 425);  x+=125;
-		right.draw(x, 425);  x+=125;
-		left.draw(x, 425);  x+=125;
+		up.draw();  
+		down.draw();  
+		right.draw();  
+		left.draw();  
 		upT.draw();
 		downT.draw();
 		leftT.draw();
