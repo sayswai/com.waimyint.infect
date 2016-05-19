@@ -1,10 +1,10 @@
 package Player;
 
-public class AI extends Sprite{
+public class AI extends Player{
 
-	private Sprite leader;
+	private Player leader;
 	
-	public AI(String name, int speed, Sprite leader)
+	public AI(String name, int speed, Player leader)
 	{
 		super(name, speed, false);
 		this.leader = leader;

@@ -4,8 +4,10 @@ import com.jogamp.nativewindow.util.Rectangle;
 import Animation.*;
 import Camera.*;
 
-public class Sprite {
+public class Player {
 
+	/*Previous position*/
+	int[] prevPos = new int[]{0, 0};
 	/*Position of Sprite (x, y)*/
 	int[] Pos = new int[2];
 	/*Position of Sprite relative to Camera*/
@@ -42,7 +44,7 @@ public class Sprite {
 	/*Player's Various Weapons*/
 	Projectiles[] projectiles;
 
-	public Sprite(String name, int speed, boolean mainCharacter)
+	public Player(String name, int speed, boolean mainCharacter)
 	{
 		this.name = name;
 		this.speed = speed; 
@@ -64,7 +66,7 @@ public class Sprite {
 		shape = new Rectangle(getX(), getY(), getWidth(), getHeight());
 	}
 	
-	public boolean collisionCheck(Sprite player)
+	public boolean collisionCheck(Player player)
 	{
 		//uses AABB check
 		Rectangle s = player.shape;
