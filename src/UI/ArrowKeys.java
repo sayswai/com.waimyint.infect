@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 import Controllers.*;
+import Player.Player;
 import Text.*;
 
 import com.jogamp.newt.event.KeyEvent;
@@ -13,10 +14,10 @@ import Controllers.TGAController;
 
 public class ArrowKeys {
 
-	class Button{
+	public class Button{
 		int arrow, pressed, xpos, ypos;
 		int[] dim = new int[2];
-		boolean down = false;
+		public boolean down = false;
 		
 		public Button(String arrow, String pressed)
 		{
@@ -34,8 +35,8 @@ public class ArrowKeys {
 		}
 	}
 	
-	boolean wasd = false;
-	Button up, down, right, left;
+	public boolean wasd = false;
+	public Button up, down, right, left;
 	char[] keys0 = new char[4];
 	Text upT, downT, rightT, leftT;
 	
@@ -47,8 +48,9 @@ public class ArrowKeys {
 		int x = 25;
 		up = new Button("uArrow.tga", "uPressed.tga"); up.xpos = x; x+=125;up.ypos=455;
 		down = new Button("dArrow.tga", "dPressed.tga");down.xpos = x; x+=125;down.ypos=455;
+
+		left = new Button("lArrow.tga", "lPressed.tga");left.xpos = x; x+=125; left.ypos=455;
 		right = new Button("rArrow.tga", "rPressed.tga");right.xpos = x; x+=125;right.ypos=455;
-		left = new Button("lArrow.tga", "lPressed.tga");left.xpos = x; left.ypos=455;
 		int count = 0;
 		
 		while(count < 4)
@@ -64,14 +66,28 @@ public class ArrowKeys {
 		x = 70;
 		upT = new Text(String.valueOf(keys0[0]).toUpperCase());  upT.setY(170); upT.setX(x); x+=125;
 		downT = new Text(String.valueOf(keys0[1]).toUpperCase()); downT.setY(170); downT.setX(x); x+=125;
+		leftT = new Text(String.valueOf(keys0[3]).toUpperCase()); leftT.setY(170); leftT.setX(x); x+=125;
 		rightT = new Text(String.valueOf(keys0[2]).toUpperCase()); rightT.setY(170); rightT.setX(x); x+=125;
-		leftT = new Text(String.valueOf(keys0[3]).toUpperCase()); leftT.setY(170); leftT.setX(x);
 		left.down = false;
 		right.down = false;
 		up.down = false;
 		down.down = false;
 	}
-	
+	public void activateWASD()
+	{
+		System.out.println("WASD activated");
+		wasd = true;
+		updateKeys(0);
+	}
+	public void deactivateWASD()
+	{
+		System.out.println("WASD deactivated");
+		wasd = false;
+		updateKeys(0);
+		updateKeys(1);
+		updateKeys(2);
+		updateKeys(3);
+	}
 	public void update()
 	{
 		
@@ -141,21 +157,21 @@ public class ArrowKeys {
 					updateKeys(0);
 					up.down = false;
 				}
-			}else if(down.down)
+			}if(down.down)
 			{
 				if(!Keyboard.pressed.contains(String.valueOf(keys0[1])))
 				{
 					updateKeys(1);
 					down.down = false;
 				}
-			}else if(right.down)
+			} if(right.down)
 			{
 				if(!Keyboard.pressed.contains(String.valueOf(keys0[2])))
 				{
 					updateKeys(2);
 					right.down = false;
 				}
-			}else if(left.down){
+			} if(left.down){
 				if(!Keyboard.pressed.contains(String.valueOf(keys0[3])))
 				{
 					updateKeys(3);

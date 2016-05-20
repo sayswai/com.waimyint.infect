@@ -5,7 +5,7 @@ import Controllers.TGAController;
 public class AnimationDef {
 
 	String name;
-	FrameDef[] frames;
+	public FrameDef[] frames;
 	
 	public AnimationDef(String name, int numOfFrames, String[] tex)
 	{
@@ -14,7 +14,8 @@ public class AnimationDef {
 		
 		for(int i = 0; i < tex.length; i++)
 		{
-			frames[i] = new FrameDef(TGAController.glTexImageTGAFile(tex[i], frames[i].size));
+			frames[i] = new FrameDef(0);
+			frames[i].image = TGAController.glTexImageTGAFile(tex[i], frames[i].size);
 		}
 	}
 	
@@ -40,6 +41,12 @@ public class AnimationDef {
 	public float getFrameTime(int i) {
 		return frames[i].frameTimeSecs;
 	}
-
+	public void setFrameTime(float n)
+	{
+		for(int i = 0; i < frames.length; i++)
+		{
+			frames[i].frameTimeSecs = n;
+		}
+	}
 
 }
