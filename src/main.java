@@ -20,6 +20,7 @@ public class main {
 	private static boolean shouldExit;
 	private static boolean loose = false;
 	private static boolean won = false;
+	private static boolean gameWin = false;
 	private static boolean afterDeath = false;
 	public static float afterDeathDuration = 1000000000.0f;
 	public static float afterDeathDelta = 0.0f;
@@ -83,6 +84,10 @@ public class main {
 				CS134.draw();
 				esc.draw();
 			}
+			enter = null;
+			enter1 = null;
+			CS134 = null;
+			esc = null;
 			
 		}
 	}
@@ -131,9 +136,9 @@ public class main {
     	ArrayList<Player> zombies = new ArrayList<Player>();
     	
     	
-    	bots.add(b0);
+    	//bots.add(b0);
     	bots.add(b1);
-    	bots.add(b2);
+    	//bots.add(b2);
     	bots.add(b2);
     	bots.add(b3);
     	bots.add(b4);
@@ -141,8 +146,8 @@ public class main {
     	bots.add(b6);
     	bots.add(b7);
     	bots.add(b8);
-    	bots.add(b9);
-    	bots.add(b10);
+    	//bots.add(b9);
+    	//bots.add(b10);
     	
     	/*powerups*/
     	PowerUp wasd = new PowerUp(10, 0); wasd.keyboard(arrows);
@@ -247,13 +252,20 @@ public class main {
     	
     	/*Extra*/
     	System.out.println("Opening window size: " +Window.window.getWidth()+" x "+Window.window.getHeight());
+    	
+    	for(int i = 0 ; i < powerups.size(); i++)
+    	{
+    		while(p1.isNear(powerups.get(i).Pos))
+    		{
+    			powerups.get(i).generatePosition();
+    		}
+    	}
 
 		Camera.deltaDuration = 300000.0f;
-		int scrollSpeed = 1;
 		Camera.deltaTime = System.nanoTime();
     	/*Game Loop*/
     	shouldExit = false;
-    	while(!shouldExit)
+    	while(!shouldExit && !gameWin)
     	{
     		/*Copies the keystrokes to prev.keystroke array to compare*/
     		System.arraycopy(Keyboard.getKbState(), 0, Keyboard.getKbPrevState(), 0, Keyboard.getKbState().length);
@@ -273,32 +285,12 @@ public class main {
     		
     		/*updates*/
     		arrows.update();//arrows
-    		if(!p1.dead){//p1dead
-    			p1.updateMovement(arrows);//player1
-    			if(!won || !loose)
-    			{
-    				p1.updateClock();
-    			}
-    		}else{
-    			if(Camera.deltaDuration < (System.nanoTime() - Camera.deltaTime)){
-    				if(Camera.direction == 1){
-    					if((Camera.x+scrollSpeed) < Window.window.getWidth())
-    					{
-    						Camera.x += scrollSpeed;
-    					}else{
-    						Camera.direction = 0;
-    					}
-    				}else if(Camera.direction == 0){
-    					if((Camera.x-scrollSpeed) >= 0)
-    					{
-    						Camera.x -= scrollSpeed;
-    					}else{
-    						Camera.direction = 1;
-    					}
-    				}
-    				Camera.deltaTime = System.nanoTime();
-    			}
+    		p1.updateMovement(arrows);//player1
+    		
+    		if(p1.dead){//camera scroll if p1 is dead
+    			Camera.scrollCamera();
     		}
+    		
     		if(!bots.isEmpty()){
 	    		for(int i = 0; i < bots.size(); i++)//bots
 	    		{
@@ -314,82 +306,90 @@ public class main {
     		}
     		
     		
+    		
     		/*Physics Update*/
+    		
     		do{
     			Camera.boundaryUpdate();
     			p1.boundaryCheck();
     			
     		
+    		
+    			
     			/*check powerup collision*/
+    		
     			if(!p1.dead){
 	    			for(int i = 0 ; i < powerups.size(); )
 	    			{
-	    				if(p1.collisionCheck(powerups.get(i).shape))
+	    				if(p1.isNear(powerups.get(i).Pos))
 	    				{
-	    					p1.addPowerUps(powerups.get(i));
-	    					powerups.remove(i);
-	    				}else{
-	    					i++;
+		    				if(p1.collisionCheck(powerups.get(i).shape))
+		    				{
+		    					p1.addPowerUps(powerups.get(i));
+		    					powerups.remove(i);
+		    				}
 	    				}
+	    				i++;
 	    			}
     			
     			
 	    			/*bot hit*/
 	    		
 	    			for(int i = 0 ;i < bots.size(); )
-	    			{
-	    				if(bots.get(i).collisionCheck(p1.shape))
 	    				{
-	    					p1.health += 5;
-	    					bots.get(i).zombie();
-	    					zombies.add(bots.get(i));
-	    					bots.remove(i);
-	    				}else{
-	    					i++;
-	    				}
+		    				if(p1.isNear(bots.get(i).Pos))
+		    				{
+			    				if(bots.get(i).collisionCheck(p1.shape))
+			    				{
+			    					p1.health += 5;
+			    					bots.get(i).zombie();
+			    					zombies.add(bots.get(i));
+			    					bots.remove(i);
+			    					i--;
+			    					}
+			    				}
+		    				i++;
+		    				}
 	    			}
-    			}
+    		
+    			
+    		
     			/*bot to bot*/
+    		
     			if(!bots.isEmpty() && !zombies.isEmpty())
     			{
     				for(int i = 0 ; i < zombies.size(); i++)
     				{
     					for(int j = 0; j < bots.size(); )
     					{
-    						if(zombies.get(i).collisionCheck(bots.get(j).shape))
+    						if(zombies.get(i).isNear(bots.get(j).Pos))
     						{
-    							if(zombies.get(i).transformed){
-	    							bots.get(j).zombie();
-	    							zombies.add(bots.get(j));
-	    							bots.remove(j);
-    							}
+	    						if(zombies.get(i).collisionCheck(bots.get(j).shape))
+	    						{
+	    							if(zombies.get(i).transformed){
+		    							bots.get(j).zombie();
+		    							zombies.add(bots.get(j));
+		    							bots.remove(j);
+		    							j--;
+	    							}
+	    						}
     						}
     							j++;
-    						
     					}
     				}
     			}
-    			
-    			
-    			p1.buffUpdate();
-    			
     			lastPhysicsFrameMS += physicsDeltaMs;
     		}while(lastPhysicsFrameMS + physicsDeltaMs < curFrameMs);
     		lastPhysicsFrameMS = 0;
     		
+    		/*Other updates*/
+    		p1.buffUpdate();
+			
     		/*extra*/
-    		if(p1.dead && !won && !loose){
+    		if(p1.dead && !won && !loose){//p1 is dead and winning or loosing isn't decided
     			afterDeath = true;
-	    		if(afterDeathDelta == 0.0f)
-	    		{
-	    			afterDeathDelta = System.nanoTime();
-	    		}
+    			countdown();
 	    		
-	    		if(afterDeathDuration < System.nanoTime() - afterDeathDelta)
-	    		{
-	    			countDown--;
-	    			afterDeathDelta = System.nanoTime();
-	    		}
 	    		if(countDown <= 0)
 	    		{
 	    			if(!bots.isEmpty())
@@ -416,9 +416,12 @@ public class main {
     		/*Draw*/
     		map.draw();
     		
-    		for(int i = 0; i < powerups.size(); i++)//powerups
+    		if(!powerups.isEmpty())
     		{
-    			powerups.get(i).draw();
+	    		for(int i = 0; i < powerups.size(); i++)//powerups
+	    		{
+	    			powerups.get(i).draw();
+	    		}
     		}
     		
     		if(!bots.isEmpty())
@@ -463,16 +466,11 @@ public class main {
     			enterToAdv.setText("Press R to restart | Q to quit");
     			enterToAdv.draw();
     			youLoose.draw(); 
-    			if(Keyboard.getKbState()[KeyEvent.VK_R])
+    			
+    			if(Keyboard.getKbState()[KeyEvent.VK_R])//restart level
     			{
     				Camera.x = 0;    				
-    				p1.leftTransform.firstRun = false;
-    				p1.rightTransform.firstRun = false;
-    				p1.dead = false;
-    				p1.dying = false;
-    				p1.health = 100;
-    				p1.Pos[0] = 700; p1.Pos[1] = 200;
-    				p1.updateRelativePosition();
+    				p1.restart();
     				if(!zombies.isEmpty()){//restart zombie array
     					for(int i = 0 ;i < zombies.size(); i++)
     					{
@@ -499,6 +497,7 @@ public class main {
     				loose = false;
     				won = false;
     				afterDeath = false;
+    				arrows.deactivateWASD();
     				System.out.println("Level restarted");
     			}else if(Keyboard.getKbState()[KeyEvent.VK_Q])
     			{
@@ -511,29 +510,19 @@ public class main {
     			enterToAdv.setText("Press C to advance");
     			enterToAdv.draw();
     			youLoose.draw();
-    			if(Keyboard.getKbState()[KeyEvent.VK_C])
+    			
+    			if(Keyboard.getKbState()[KeyEvent.VK_C])//continue levels
     			{
     				Camera.x = 0;
-    				p1.leftTransform.firstRun = false;
-    				p1.rightTransform.firstRun = false;
-    				p1.dead = false;
-    				p1.dying = false;
-    				p1.health = 100;
-    				p1.Pos[0] = 700; p1.Pos[1] = 200;
-    				p1.updateRelativePosition();
+    				p1.restart();
     				p1.lifeDuration  -= 8999999.0f;
-    				bots = (ArrayList<Player>) zombies.clone();
-    				zombies.clear();
-    				for(int i = 0 ; i < bots.size(); )
+    				for(int i = 0; i < zombies.size()-4; i++)
     				{
-    					if(i == bots.size() -1)
-    					{
-    						bots.remove(i);
-    					}else{
-    						bots.get(i).restart();
-    						i++;
-    					}
+    					zombies.get(i).restart();
+    					bots.add(zombies.get(i));
+    					
     				}
+    				zombies.clear();
     				//powerups
     				powerups.clear();
     				powerups.add(wasd);
@@ -542,15 +531,19 @@ public class main {
     				powerups.add(speedUp);
     				for(int i = 0 ;i < powerups.size(); i++)
     				{
-    					powerups.get(i).generatePosition();
-    					powerups.get(i).setShape();
+    					while(p1.isNear(powerups.get(i).Pos))
+    					{
+	    					powerups.get(i).generatePosition();
+	    					powerups.get(i).setShape();
+    					}
     				}
     				countDown = 10;
         			level++;
     				loose = false;
     				won = false;
     				afterDeath = false;
-    				System.out.println("advancing level");
+    				arrows.deactivateWASD();
+    				System.out.println("Advancing to Level "+level);
     			}
     		}
     		else if(afterDeath && !loose && !won)
@@ -562,13 +555,47 @@ public class main {
     		/*Update Arrows*/
     		arrows.updateLetters();
     		
-    		
-    		//System.out.println("Player's position:" +p1.Pos[0]+","+p1.Pos[1]+" \n w1: "+wasd.Pos[0]+","+wasd.Pos[1]+" \n w2: "+wasd1.Pos[0]+","+wasd1.Pos[1]);
+    		if(bots.isEmpty() && zombies.isEmpty())
+    		{
+    			gameWin = true;
+    		}
     
     		
     	
     	}
+    	
+    	while(gameWin)
+    	{
+    		System.arraycopy(Keyboard.getKbState(), 0, Keyboard.getKbPrevState(), 0, Keyboard.getKbState().length);
+			Window.window.display();
+			if(!Window.window.isVisible())
+    		{
+				gameWin = false;
+				System.exit(0);
+    		}
+			youLoose.setText("YOU WIN");
+			youLoose.setX(400);
+			youLoose.setColor(Color.white);
+			
+			Window.clearWindow();
+			youLoose.draw();
+    	}
     	System.exit(0);
+	}
+
+	
+
+	private static void countdown() {
+		if(afterDeathDelta == 0.0f)
+		{
+			afterDeathDelta = System.nanoTime();
+		}
+		
+		if(afterDeathDuration < System.nanoTime() - afterDeathDelta)
+		{
+			countDown--;
+			afterDeathDelta = System.nanoTime();
+		}
 	}
 
 	

@@ -25,8 +25,32 @@ public class Camera {
 		if(x <= 0){
 			x = 0;
 		}
-		if(x >= Window.window.getWidth()){
-			x = Window.window.getWidth();
+		if(x >= 800){
+			x = 800;
+		}
+	}
+	
+	public static void scrollCamera()
+	{
+		if(deltaDuration < (System.nanoTime() - deltaTime))
+		{
+			if(direction == 1)
+			{
+				if((x + 1) < 800)
+				{
+					x += 1;
+				}else{
+					direction = 0;
+				}
+			}else{
+				if((x -1 ) >= 0)
+				{
+					x -= 1;
+				}else{
+					direction = 1;
+				}
+			}
+			deltaTime = System.nanoTime();
 		}
 	}
 	

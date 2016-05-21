@@ -34,12 +34,15 @@ public class Player {
 						if(counter == def.frames.length - 1)
 						{
 							counter = 0;
-							firstRun = true;
 						}else{
 							counter++;
+							
 						}
 						//curFrameTex = def.getFrameTex(counter);
 						//curFrameSize = def.getSizes(counter);
+						if(counter == def.frames.length - 1 && !firstRun){
+							firstRun = true;
+						}
 						deltaTime = System.nanoTime();
 					}
 					
@@ -101,28 +104,28 @@ public class Player {
 		
 		public boolean update()
 		{
-			boolean retrn = false;
 				if(skill.duration > System.nanoTime() - deltaTime)//buff hasn't worn out
 				{
-					if(skill.type == 0)//wasd 
+					if(!on)
 					{
-						if(!on){
-							skill.arrows.activateWASD();
-							on = true;
-						}
-					}else if(skill.type == 1)//speedup
-					{
-						if(!on)
+						on = true;
+						if(skill.type == 0)//wasd 
 						{
-							System.out.println("speed up activatd");
-							speed += value;
-							on = true;
+								skill.arrows.activateWASD();
+								return false;
+						}else if(skill.type == 1)//speedup
+						{
+							
+								System.out.println("speed up activatd");
+								speed += value;
+								return false;
 						}
 					}
+					return false;
 				}else{//buff is worn out
-					retrn = true;
 					if(on)//turn off buff if it was previously on
 					{
+						on = false;
 						if(skill.type == 0)
 						{
 							skill.arrows.deactivateWASD();
@@ -132,10 +135,9 @@ public class Player {
 							speed -= value;
 						}
 					}
-					on = false;
 				}
 			
-			return retrn;//return true if buff is worn out
+			return true;
 		}
 	}
 	/*Previous position*/
@@ -253,9 +255,17 @@ public class Player {
 		}
 	}
 	public void restart() {
+		leftTransform.firstRun = false;
+		rightTransform.firstRun = false;
+		dead = false;
+		dying = false;
+		transformed = false;
 		if(isAi)//bot
-		{
-			transformed = false;
+		{	
+			if(behavior == ZOMBIE)
+			{
+				speed--;
+			}
 			behavior = 2;
 			behaviorDelta = System.nanoTime();
 			r = new Random();
@@ -265,12 +275,19 @@ public class Player {
 				Pos[0] = r.nextInt(1530) + 800;
 			}
 			Pos[1] = r.nextInt(350) + 1;
+		}else{
+			health = 100;
+			Pos[0] = 700;
+			Pos[1] = 200;
+			buffs.clear();
 		}
+		updateRelativePosition();
 	}
 	public void zombie() {
 		if(behavior != ZOMBIE)
 		{
 			behavior = ZOMBIE;
+			speed++;
 			System.out.println(name+" is now a zombie!!!!!");
 			name.replace("name", "zombie");
 		}
@@ -286,7 +303,6 @@ public class Player {
 					curr = leftTransform;
 				}else{
 					transformed = true;
-					leftTransform.firstRun = false;
 				}
 			}else{
 				if(!rightTransform.firstRun)
@@ -294,17 +310,16 @@ public class Player {
 					curr = rightTransform;
 				}else{
 					transformed = true;
-					rightTransform.firstRun = false;
 				}
 			}
 		}
 	}
 	public void updateMovement(ArrowKeys arrows) {
-		lastFrameTime = System.nanoTime();
+		//lastFrameTime = System.nanoTime();
 		
 		prevPos[0] = Pos[0];
 		prevPos[1] = Pos[1];
-		if(!isAi && !dying)//player update
+		if(!isAi && !dying && !dead)//player update
 		{
 			/*save camera's last position*/
 			Camera.prevX = Camera.x;
@@ -343,14 +358,15 @@ public class Player {
 				vertical = DOWN;
 			}
 			updateRelativePosition();
-		}else if(dying)
+			updateClock();
+		}else if(dying && !dead)
 		{
 			die();
 		}else if(dead)
 		{
 			Pos[0] = -500;
 			Pos[1] = -500;
-		}else{//bot update
+		}else if(isAi){//bot update
 			updateAI();
 			updateRelativePosition();
 			shape.setX(Pos[0]); shape.setY(Pos[1]);
@@ -361,7 +377,7 @@ public class Player {
 
 	private void die()
 	{
-		if(dying && !dead){
+		if(dying){
 			if(direction == LEFT)
 			{
 				if(!leftDead.firstRun)
@@ -385,7 +401,7 @@ public class Player {
 		{
 			health -= 1;
 			lifeDelta = System.nanoTime();
-			if(health < 0)
+			if(health <= 0)
 			{
 				health = 0;
 				dying = true;
@@ -466,7 +482,7 @@ public class Player {
 			Pos[1] -= speed;
 		}
 		
-		if(Pos[0] == dest[0] && Pos[1] == dest[1])
+		if(Pos[0] == dest[0] && Pos[1] == dest[1] || prevPos[0] == Pos[0] && prevPos[1] == Pos[1])
 		{
 			setNewDest();
 		}else{
@@ -686,15 +702,38 @@ public class Player {
 	{
 		rPos[0] = Pos[0] - Camera.x;
 		rPos[1] = Pos[1] - Camera.y;
+		/*Update onScreen value*/
+		if(rPos[0] >= -70 && rPos[0] <= Window.WINDOW_WIDTH)
+		{
+			if(rPos[1] >= 0 && rPos[1] <= 400)
+			{
+				onScreen = true;
+			}else{
+				onScreen = false;
+			}
+		}else{
+			onScreen = false;
+		}
 	}
 	
+	public boolean isNear(int[] pp)
+	{
+		if((Pos[0]-200) < pp[0] && (Pos[0]+200) > pp[0])
+		{
+			if((Pos[1]-50) < pp[1] && (Pos[1]+100) > pp[1])
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 	public void draw(ArrowKeys arrows)
 	{
 		if(onScreen)
 		{
 			if(!isAi)//player draw update
 			{
-				if(!dying){
+				if(!dying && !dead){
 					if(direction == LEFT && arrows.left.down)
 					{
 						leftMove.update();
@@ -711,13 +750,10 @@ public class Player {
 						idleRight.update();
 						idleRight.draw();
 					}
-				}else if(dying)
+				}else if(dying && !dead)
 				{
 						curr.update();
-						if(!curr.firstRun)
-							curr.draw();
-						else
-							dead = true;
+						curr.draw();
 				}
 			}else{//AI draw
 				curr.update();
@@ -728,48 +764,35 @@ public class Player {
 	
 	public void boundaryCheck() {
 		if(!dead){
-		/*Off-map check*/
-		if(Pos[0] < 0 || Pos[0] > ((Window.window.getWidth() * 2)-65))
-		{
-			Pos[0] = prevPos[0];
-			if(!isAi){
-			Camera.x = Camera.prevX;
-			}
-			updateRelativePosition();
-		}
-		if(isAi)
-		{
-			if(Pos[1] > 340)
+			/*Off-map check*/
+			if(Pos[0] < 0 || Pos[0] > 1535)
 			{
-				Pos[1] = prevPos[1];
+				Pos[0] = prevPos[0];
+				if(!isAi){
+				Camera.x = Camera.prevX;
+				}
 				updateRelativePosition();
 			}
-		}
-		if(Pos[1] < 0 || Pos[1] > 350)
-		{
-			Pos[1] = prevPos[1];
-			if(!isAi){
-			Camera.y = Camera.prevY;
-			}
-			updateRelativePosition();
-		}
-		
-		
-		/*Update onScreen value*/
-		if(rPos[0] >= -70 && rPos[0] <= Window.window.getWidth())
-		{
-			if(rPos[1] >= 0 && rPos[1] <= 400)
+			if(isAi)
 			{
-				onScreen = true;
+				if(Pos[1] > 340)
+				{
+					Pos[1] = prevPos[1];
+					updateRelativePosition();
+				}
 			}else{
-				onScreen = false;
+				if(Pos[1] < 0 || Pos[1] > 350)
+				{
+					Pos[1] = prevPos[1];
+					Camera.y = Camera.prevY;
+					updateRelativePosition();
+				}
 			}
-		}else{
-			onScreen = false;
-		}
-		
-		/*update shape*/
-		shape.setX(Pos[0]); shape.setY(Pos[1]);
+			
+			
+			
+			/*update shape*/
+			shape.setX(Pos[0]); shape.setY(Pos[1]);
 		}
 	}
 	

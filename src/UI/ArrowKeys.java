@@ -14,6 +14,7 @@ import Controllers.TGAController;
 
 public class ArrowKeys {
 
+	
 	public class Button{
 		int arrow, pressed, xpos, ypos;
 		int[] dim = new int[2];

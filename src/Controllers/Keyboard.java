@@ -24,15 +24,18 @@ public class Keyboard {
             	   return;
                }
             	kbState[keyEvent.getKeyCode()] = true;
-            	pressed.add(String.valueOf(keyEvent.getKeyChar()));
+            	if(!pressed.contains(String.valueOf(keyEvent.getKeyChar()))){
+            		pressed.add(String.valueOf(keyEvent.getKeyChar()));
+            	}
              }
 
             public void keyReleased(KeyEvent keyEvent) {
                 if(keyEvent.isAutoRepeat()){
                 	return;
                 }
-            	kbState[keyEvent.getKeyCode()] = false;
-            	pressed.remove(String.valueOf(keyEvent.getKeyChar()));
+                	kbState[keyEvent.getKeyCode()] = false;
+            	
+            		pressed.remove(String.valueOf(keyEvent.getKeyChar()));
             	 }
             
         });

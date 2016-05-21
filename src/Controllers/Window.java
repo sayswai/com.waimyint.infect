@@ -11,6 +11,7 @@ public class Window {
 	public static GLProfile gl2Profile;
 	public static GLWindow window;
 	public static GL2 gl;
+	public static final int WINDOW_WIDTH = 800;
 
 public static void createWindow(int width, int height, String title)
 {

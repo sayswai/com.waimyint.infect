@@ -10,6 +10,7 @@ import com.jogamp.nativewindow.util.Rectangle;
 import Animation.*;
 import Camera.Camera;
 import Controllers.TGAController;
+import Controllers.Window;
 
 public class PowerUp {
 
@@ -89,21 +90,34 @@ public class PowerUp {
 	{
 		rPos[0] = Pos[0] - Camera.x;
 		rPos[1] = Pos[1] - Camera.y;
+		/*Update onScreen value*/
+		if(rPos[0] >= -70 && rPos[0] <= Window.WINDOW_WIDTH)
+		{
+			if(rPos[1] >= 0 && rPos[1] <= 400)
+			{
+				onScreen = true;
+			}else{
+				onScreen = false;
+			}
+		}else{
+			onScreen = false;
+		}
 	}
 	
 	public void generatePosition()
 	{
 		Random r = new Random();
-		Pos[0] = r.nextInt(1600) + 1;
+		Pos[0] = r.nextInt(1550) + 1;
 		Pos[1] = r.nextInt(350) + 1;
-
-		updateRelativePosition();
 	}
 	public void draw()
 	{
 		updateRelativePosition();
-		a.update();
-		a.draw();
+		if(onScreen)
+		{
+			a.update();
+			a.draw();
+		}
 	}
 	
 	public void setShape()
